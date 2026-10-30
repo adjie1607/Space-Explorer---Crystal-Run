@@ -67,6 +67,18 @@
             </svg>
             <span id="fullscreenLabel">Layar penuh</span>
           </button>
+          <button
+            class="text-button"
+            id="leaderboardButton"
+            aria-label="Papan peringkat"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M8 3h8v8a4 4 0 0 1-8 0V3Zm0 2H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4m-4 3v5m-4 0h8"
+              />
+            </svg>
+            <span>Peringkat</span>
+          </button>
           <button class="text-button" id="helpButton">
             <span class="help-symbol" aria-hidden="true">?</span>
             <span>Cara main</span>
@@ -154,6 +166,32 @@
                   <div class="result" id="result" hidden>
                     <strong id="resultScore">0</strong
                     ><span id="resultDetail">poin terkumpul</span>
+                  </div>
+                  <div class="pilot-score-box" id="pilotScoreBox" hidden>
+                    <label class="sr-only" for="pilotNameInput"
+                      >Nama pilot</label
+                    >
+                    <input
+                      type="text"
+                      id="pilotNameInput"
+                      maxlength="14"
+                      placeholder="Nama pilot (mis. ADJIE)"
+                      autocomplete="nickname"
+                    />
+                    <button
+                      type="button"
+                      class="secondary-pill"
+                      id="submitScoreButton"
+                    >
+                      Simpan skor
+                    </button>
+                    <button
+                      type="button"
+                      class="text-link-button"
+                      id="overlayLeaderboardButton"
+                    >
+                      Peringkat
+                    </button>
                   </div>
                   <button class="primary-button" id="startButton" disabled>
                     <span id="startLabel">Memuat aset…</span
@@ -436,15 +474,64 @@
         Siap, mengerti <span aria-hidden="true">→</span>
       </button>
     </dialog>
+    <dialog id="leaderboardDialog" aria-labelledby="leaderboardTitle">
+      <button
+        class="close-button icon-button"
+        id="closeLeaderboard"
+        aria-label="Tutup papan peringkat"
+      >
+        ×
+      </button>
+      <div class="leaderboard-header">
+        <div>
+          <span class="leaderboard-badge" id="leaderboardModeBadge"
+            >Memuat…</span
+          >
+          <h2 id="leaderboardTitle">Papan Peringkat Pilot</h2>
+        </div>
+        <button
+          type="button"
+          class="icon-button"
+          id="refreshLeaderboard"
+          aria-label="Muat ulang peringkat"
+        >
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6" />
+          </svg>
+        </button>
+      </div>
+      <p class="leaderboard-sub" id="leaderboardSubtitle">
+        10 pilot dengan skor tertinggi sepanjang ekspedisi.
+      </p>
+      <form class="leaderboard-pilot-form" id="dialogPilotForm">
+        <label class="sr-only" for="dialogPilotInput">Callsign pilot</label>
+        <input
+          type="text"
+          id="dialogPilotInput"
+          maxlength="14"
+          placeholder="Callsign pilot Anda…"
+          autocomplete="nickname"
+        />
+        <button type="submit" class="secondary-pill" id="dialogPilotSubmit">
+          Catat rekor saya
+        </button>
+      </form>
+      <ol
+        class="leaderboard-list"
+        id="leaderboardList"
+        aria-label="Daftar 10 skor tertinggi"
+      ></ol>
+    </dialog>
     <noscript
       ><p class="noscript">
         Aktifkan JavaScript untuk memainkan Space Explorer.
       </p></noscript
     >
-    <!-- Urutan penting: konfigurasi → aset → audio → logika game. -->
+    <!-- Urutan penting: konfigurasi → aset → audio → leaderboard → logika game. -->
     <script src="js/config.js"></script>
     <script src="js/assets.js"></script>
     <script src="js/audio.js"></script>
+    <script src="js/leaderboard.js"></script>
     <script src="js/game.js"></script>
   </body>
 </html>

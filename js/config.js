@@ -65,6 +65,15 @@ window.GameConfig = Object.freeze({
     baseDrift: 95,
     driftStep: 10,
   }),
+  // Konfigurasi Leaderboard Global Online (Firebase Realtime Database / Supabase) + Fallback Lokal.
+  // Isi firebaseUrl (mis. "https://nama-project-default-rtdb.asia-southeast1.firebasedatabase.app")
+  // atau supabaseUrl + supabaseAnonKey agar papan skor tersinkronisasi lintas perangkat.
+  leaderboard: Object.freeze({
+    firebaseUrl: "https://space-explorer-crystal-run-default-rtdb.asia-southeast1.firebasedatabase.app/",
+    supabaseUrl: "",
+    supabaseAnonKey: "",
+    maxEntries: 10,
+  }),
   // Semua jalur media relatif terhadap index.html, termasuk saat dibuka offline.
   media: Object.freeze({
     images: Object.freeze({

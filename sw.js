@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_NAME = "space-explorer-v2";
+const CACHE_NAME = "space-explorer-v3";
 const PRECACHE_ASSETS = [
   "./",
   "./index.html",
@@ -9,6 +9,7 @@ const PRECACHE_ASSETS = [
   "./js/config.js",
   "./js/assets.js",
   "./js/audio.js",
+  "./js/leaderboard.js",
   "./js/game.js",
   "./assets/fonts/Inter-Variable.ttf",
   "./assets/fonts/BarlowCondensed-SemiBold.ttf",
@@ -61,6 +62,9 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
+  const url = new URL(event.request.url);
+  // Jangan cache request API eksternal (Firebase / Supabase Leaderboard Online).
+  if (url.origin !== self.location.origin) return;
   event.respondWith(
     caches.match(event.request).then((cached) => {
       if (cached) return cached;

@@ -438,6 +438,26 @@
     else if (state === "ready" || state === "victory") start();
   }
 
+  function currentStageLabel() {
+    return isEndless()
+      ? `Endless · Gel. ${endlessWave}`
+      : `Lv. ${levelIndex + 1} · ${currentLevel().name}`;
+  }
+
+  function escapeHTML(str) {
+    return String(str).replace(
+      /[&<>"']/g,
+      (ch) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        })[ch],
+    );
+  }
+
   function pause() {
     if (state === "playing") {
       keys.clear();
@@ -449,9 +469,14 @@
         : `Level ${levelIndex + 1} tetap aman. Timer dan posisi dibekukan.`;
       $("startLabel").textContent = "Lanjutkan misi";
       $("result").hidden = true;
+      if ($("pilotScoreBox")) $("pilotScoreBox").hidden = true;
       $("enterHint").innerHTML = "atau tekan <kbd>P</kbd>";
       $("startButton").focus({ preventScroll: true });
-    } else if (state === "paused" && !$("helpDialog").open) {
+    } else if (
+      state === "paused" &&
+      !$("helpDialog").open &&
+      !($("leaderboardDialog") && $("leaderboardDialog").open)
+    ) {
       setState("playing");
       window.GameAudio.startMusic();
     }
@@ -501,6 +526,24 @@
     $("resultScore").textContent = score;
     $("resultDetail").textContent =
       `skor total${score > oldBest ? " · rekor baru!" : ""}`;
+    if ($("pilotScoreBox") && window.GameLeaderboard) {
+      $("pilotScoreBox").hidden = score <= 0;
+      const savedPilot = window.GameLeaderboard.getPilotName();
+      if ($("pilotNameInput")) $("pilotNameInput").value = savedPilot;
+      if ($("submitScoreButton")) {
+        $("submitScoreButton").disabled = false;
+        $("submitScoreButton").textContent = savedPilot
+          ? "Perbarui nama"
+          : "Simpan skor";
+      }
+      if (savedPilot && score > 0) {
+        window.GameLeaderboard.submitScore({
+          name: savedPilot,
+          score,
+          stage: currentStageLabel(),
+        }).catch(() => {});
+      }
+    }
     $("startLabel").textContent = won
       ? finalCampaignLevel
         ? "Lanjut ke Mode Endless"
@@ -945,6 +988,130 @@
   $("closeHelp").addEventListener("click", closeHelp);
   $("understood").addEventListener("click", closeHelp);
 
+  // Papan Peringkat (Leaderboard Global Online + Lokal Perangkat)
+  async function renderLeaderboard() {
+    if (!window.GameLeaderboard || !$("leaderboardList")) return;
+    const badge = $("leaderboardModeBadge");
+    if (badge) {
+      badge.textContent = "Memuat peringkat…";
+      badge.classList.remove("local");
+    }
+    const { entries, mode } = await window.GameLeaderboard.fetchLeaderboard();
+    if (badge) {
+      badge.textContent =
+        mode === "online"
+          ? "Global Online · Lintas Perangkat"
+          : mode === "offline-fallback"
+            ? "Mode Offline · Data Tersimpan"
+            : "Lokal · Perangkat Ini";
+      badge.classList.toggle("local", mode !== "online");
+    }
+    const myName = window.GameLeaderboard.getPilotName();
+    if ($("dialogPilotInput") && !$("dialogPilotInput").value && myName) {
+      $("dialogPilotInput").value = myName;
+    }
+    if (!entries.length) {
+      $("leaderboardList").innerHTML =
+        `<li class="leaderboard-empty">Belum ada rekor pilot tercatat. Mainkan misi atau catat Callsign Anda di atas!</li>`;
+      return;
+    }
+    $("leaderboardList").innerHTML = entries
+      .map((item, idx) => {
+        const rank = idx + 1;
+        const isMe =
+          myName &&
+          item.name.toLowerCase() ===
+            window.GameLeaderboard.cleanPilotName(myName).toLowerCase();
+        return `<li class="leaderboard-row rank-${rank}${isMe ? " is-me" : ""}"><span class="leaderboard-rank">#${rank}</span><div class="leaderboard-pilot"><strong>${escapeHTML(item.name)}${isMe ? " · Kamu" : ""}</strong><span>${escapeHTML(item.stage)}</span></div><strong class="leaderboard-score">${item.score}</strong></li>`;
+      })
+      .join("");
+  }
+
+  function openLeaderboard() {
+    if (state === "playing") pause();
+    if (!$("leaderboardDialog")) return;
+    if ($("dialogPilotInput") && window.GameLeaderboard) {
+      $("dialogPilotInput").value = window.GameLeaderboard.getPilotName();
+    }
+    $("leaderboardDialog").showModal();
+    renderLeaderboard();
+  }
+
+  function closeLeaderboard() {
+    if ($("leaderboardDialog")) $("leaderboardDialog").close();
+  }
+
+  if ($("leaderboardButton"))
+    $("leaderboardButton").addEventListener("click", openLeaderboard);
+  if ($("overlayLeaderboardButton"))
+    $("overlayLeaderboardButton").addEventListener("click", openLeaderboard);
+  const recordFooter = document.querySelector(".record");
+  if (recordFooter) recordFooter.addEventListener("click", openLeaderboard);
+  if ($("closeLeaderboard"))
+    $("closeLeaderboard").addEventListener("click", closeLeaderboard);
+  if ($("refreshLeaderboard"))
+    $("refreshLeaderboard").addEventListener("click", renderLeaderboard);
+
+  async function saveOverlayPilotScore() {
+    if (!window.GameLeaderboard || !$("pilotNameInput")) return;
+    const rawName = $("pilotNameInput").value.trim() || "PILOT NOMAD";
+    const btn = $("submitScoreButton");
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Menyimpan…";
+    }
+    await window.GameLeaderboard.submitScore({
+      name: rawName,
+      score: Math.max(score, best),
+      stage: currentStageLabel(),
+    });
+    $("pilotNameInput").value = window.GameLeaderboard.getPilotName();
+    if (btn) {
+      btn.textContent = "Tersimpan ✓";
+      btn.disabled = false;
+    }
+  }
+
+  if ($("submitScoreButton")) {
+    $("submitScoreButton").addEventListener("click", saveOverlayPilotScore);
+  }
+  if ($("pilotNameInput")) {
+    $("pilotNameInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        saveOverlayPilotScore();
+      }
+    });
+  }
+  if ($("dialogPilotForm")) {
+    $("dialogPilotForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!window.GameLeaderboard || !$("dialogPilotInput")) return;
+      const rawName = $("dialogPilotInput").value.trim() || "PILOT NOMAD";
+      const submitBtn = $("dialogPilotSubmit");
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Menyimpan…";
+      }
+      await window.GameLeaderboard.submitScore({
+        name: rawName,
+        score: Math.max(score, best),
+        stage:
+          score > 0
+            ? currentStageLabel()
+            : completedLevels >= LEVELS.length
+              ? "Endless · Veteran"
+              : "Rekor Pribadi",
+      });
+      $("dialogPilotInput").value = window.GameLeaderboard.getPilotName();
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Tersimpan ✓";
+      }
+      await renderLeaderboard();
+    });
+  }
+
   // Panduan & tombol instalasi aplikasi (PWA Android / iOS Home Screen)
   let deferredInstallPrompt = null;
   const isStandalone =
@@ -1027,6 +1194,7 @@
     if (
       $("helpDialog").open ||
       ($("installDialog") && $("installDialog").open) ||
+      ($("leaderboardDialog") && $("leaderboardDialog").open) ||
       ["INPUT", "TEXTAREA"].includes(e.target.tagName)
     )
       return;
