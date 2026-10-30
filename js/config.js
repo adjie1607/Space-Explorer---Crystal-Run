@@ -50,6 +50,21 @@ window.GameConfig = Object.freeze({
       difficulty: "Intens",
     }),
   ]),
+  endless: Object.freeze({
+    name: "Sektor Tanpa Batas",
+    description:
+      "Terbang tanpa batas waktu. Tiap 150 poin naik gelombang, dapat bonus +50 poin & +1 nyawa",
+    wavePoints: 150,
+    waveBonus: 50,
+    baseSpawnInterval: 0.44,
+    minSpawnInterval: 0.24,
+    spawnStep: 0.025,
+    baseMinSpeed: 170,
+    baseMaxSpeed: 230,
+    speedStep: 14,
+    baseDrift: 95,
+    driftStep: 10,
+  }),
   // Semua jalur media relatif terhadap index.html, termasuk saat dibuka offline.
   media: Object.freeze({
     images: Object.freeze({

@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_NAME = "space-explorer-v1";
+const CACHE_NAME = "space-explorer-v2";
 const PRECACHE_ASSETS = [
   "./",
   "./index.html",

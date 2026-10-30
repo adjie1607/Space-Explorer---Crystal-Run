@@ -98,7 +98,8 @@
           <div class="game-panel">
             <div class="hud" aria-label="Status permainan">
               <div class="stat">
-                <span>Sisa waktu</span><strong id="timer">00:45</strong>
+                <span id="timerLabel">Sisa waktu</span
+                ><strong id="timer">00:45</strong>
               </div>
               <div class="stat score-stat">
                 <span>Skor total</span><strong id="score">000</strong>
@@ -262,16 +263,16 @@
               <ol id="levelRoute" aria-label="Urutan tiga level"></ol>
             </div>
             <div class="brief">
-              <span class="guide-heading"
+              <span class="guide-heading" id="levelHeading"
                 >Level <span id="levelNumber">1</span> dari 3</span
               >
               <h2 id="levelName">Orbit Kepler</h2>
               <p id="levelDescription">
                 Kenali lintasan, Ambil kristal dan pelajari dash
               </p>
-              <div class="level-requirements">
-                <span><strong id="levelTarget">100</strong> poin</span
-                ><span><strong id="levelDuration">45</strong> detik</span>
+              <div class="level-requirements" id="levelRequirements">
+                <span><strong id="levelTarget">100</strong> <span id="levelTargetUnit">poin</span></span
+                ><span><strong id="levelDuration">45</strong> <span id="levelDurationUnit">detik</span></span>
               </div>
               <div
                 class="progress"
@@ -359,14 +360,15 @@
       </p>
       <ul>
         <li>
-          <strong>Naik level:</strong> target tercapai → layar hasil → lanjut ke
-          level berikutnya. Skor total diteruskan; timer dan 3 nyawa diisi
-          ulang.
+          <strong>Naik level &amp; Mode Endless:</strong> setelah menyelesaikan
+          Level 1–3, permainan berlanjut ke <strong>Mode Endless</strong> tanpa
+          batas waktu! Setiap 150 poin di Endless menaikkan gelombang (+50 poin
+          bonus &amp; +1 nyawa).
         </li>
         <li>
-          <strong>Gagal:</strong> waktu habis atau nyawa nol. Ulangi level yang
-          sama; poin dari percobaan gagal tidak ditumpuk ke percobaan
-          berikutnya.
+          <strong>Gagal:</strong> waktu habis atau nyawa nol. Ulangi level atau
+          Mode Endless saat ini tanpa harus kembali ke Level 1; poin dari level
+          sebelumnya tetap aman.
         </li>
         <li>
           <strong>Bergerak:</strong> WASD / tombol panah di komputer. Di Android

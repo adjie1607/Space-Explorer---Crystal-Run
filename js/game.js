@@ -8,13 +8,37 @@
   // 1. KONFIGURASI DAN STATE
   const CONFIG = window.GameConfig.settings;
   const LEVELS = window.GameConfig.levels;
+  const ENDLESS = window.GameConfig.endless;
+  const PLANETS = ["planet-perseid", "planet-kepler", "planet-orion"];
   const images = window.GameAssets.images;
   let levelIndex = 0,
     levelScore = 0,
     levelStartScore = 0,
-    completedLevels = 0;
+    completedLevels = 0,
+    endlessWave = 1;
   let assetsReady = false;
-  const currentLevel = () => LEVELS[levelIndex];
+  const isEndless = () => levelIndex >= LEVELS.length;
+  function currentLevel() {
+    if (!isEndless()) return LEVELS[levelIndex];
+    const step = Math.max(0, endlessWave - 1);
+    return {
+      id: "∞",
+      name: ENDLESS.name,
+      description: ENDLESS.description,
+      target: ENDLESS.wavePoints,
+      duration: 0,
+      spawnInterval: Math.max(
+        ENDLESS.minSpawnInterval,
+        ENDLESS.baseSpawnInterval - step * ENDLESS.spawnStep,
+      ),
+      minSpeed: Math.min(280, ENDLESS.baseMinSpeed + step * ENDLESS.speedStep),
+      maxSpeed: Math.min(360, ENDLESS.baseMaxSpeed + step * ENDLESS.speedStep),
+      drift: Math.min(165, ENDLESS.baseDrift + step * ENDLESS.driftStep),
+      planet: PLANETS[step % PLANETS.length],
+      difficulty: `Gelombang ${endlessWave}`,
+      isEndless: true,
+    };
+  }
   const C = {
     bg: "#101512",
     star: "#bbc4ac",
@@ -207,21 +231,41 @@
       spin: random(-0.7, 0.7),
     };
   }
+  function formatClock(sec) {
+    const s = Math.max(0, Math.floor(sec));
+    return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+  }
   function syncHUD() {
-    const seconds = Math.ceil(timeLeft);
+    const endless = isEndless();
+    const seconds = endless ? Math.floor(elapsed) : Math.ceil(timeLeft);
+    const progressValue = endless
+      ? levelScore % ENDLESS.wavePoints
+      : Math.min(levelScore, currentLevel().target);
+    const progressMax = endless ? ENDLESS.wavePoints : currentLevel().target;
+    if ($("levelHeading")) {
+      $("levelHeading").innerHTML = endless
+        ? `Mode Endless · Gelombang <span>${endlessWave}</span>`
+        : `Level <span id="levelNumber">${levelIndex + 1}</span> dari ${LEVELS.length}`;
+    }
     $("levelName").textContent = currentLevel().name;
-    $("levelNumber").textContent = levelIndex + 1;
-    $("levelTarget").textContent = currentLevel().target;
+    $("levelTarget").textContent = progressMax;
+    if ($("levelTargetUnit")) {
+      $("levelTargetUnit").textContent = endless ? "poin / gelombang" : "poin";
+    }
     $("levelDescription").textContent = currentLevel().description;
-    $("levelDuration").textContent = currentLevel().duration;
-    $("progressTrack").setAttribute(
-      "aria-valuenow",
-      Math.min(levelScore, currentLevel().target),
-    );
-    $("progressTrack").setAttribute("aria-valuemax", currentLevel().target);
-    $("timer").textContent =
-      `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
-    $("timer").classList.toggle("timer-urgent", seconds <= 10);
+    $("levelDuration").textContent = endless ? "∞" : currentLevel().duration;
+    if ($("levelDurationUnit")) {
+      $("levelDurationUnit").textContent = endless
+        ? "tanpa batas waktu"
+        : "detik";
+    }
+    $("progressTrack").setAttribute("aria-valuenow", progressValue);
+    $("progressTrack").setAttribute("aria-valuemax", progressMax);
+    if ($("timerLabel")) {
+      $("timerLabel").textContent = endless ? "Waktu bertahan" : "Sisa waktu";
+    }
+    $("timer").textContent = formatClock(seconds);
+    $("timer").classList.toggle("timer-urgent", !endless && seconds <= 10);
     $("score").textContent = String(score).padStart(3, "0");
     $("lives").setAttribute(
       "aria-label",
@@ -231,9 +275,10 @@
       heart.classList.toggle("lost", i >= health),
     );
     $("progressFill").style.width =
-      `${Math.min(100, (levelScore / currentLevel().target) * 100)}%`;
-    $("progressLabel").textContent =
-      `${levelScore} dari ${currentLevel().target} poin level`;
+      `${Math.min(100, (progressValue / progressMax) * 100)}%`;
+    $("progressLabel").textContent = endless
+      ? `${progressValue} dari ${progressMax} poin ke Gelombang ${endlessWave + 1}`
+      : `${levelScore} dari ${currentLevel().target} poin level`;
     $("dashFill").style.width =
       `${(1 - dashCooldown / CONFIG.dashCooldown) * 100}%`;
     $("dashStatus").textContent =
@@ -266,7 +311,7 @@
   // STATE: ready → playing → level-complete → playing → victory.
   // Dari playing pemain juga bisa menuju paused atau game-over.
   function renderRoute() {
-    $("levelRoute").innerHTML = LEVELS.map((level, index) => {
+    const steps = LEVELS.map((level, index) => {
       const complete = index < completedLevels;
       const active = index === levelIndex && !complete;
       const status = complete
@@ -277,7 +322,18 @@
             ? "Berikutnya"
             : "Terkunci";
       return `<li class="route-step ${complete ? "complete" : active ? "current" : "locked"}" ${active ? 'aria-current="step"' : ""}><span class="route-number">${complete ? '<img src="assets/images/check.svg" width="20" height="20" alt="">' : level.id}</span><div><strong>${level.name}</strong><span>${level.target} poin · ${level.duration} detik</span></div><span class="route-status">${status}</span></li>`;
-    }).join("");
+    });
+    const endlessActive = isEndless();
+    const endlessUnlocked = completedLevels >= LEVELS.length;
+    const endlessStatus = endlessActive
+      ? `Gelombang ${endlessWave}`
+      : endlessUnlocked
+        ? "Siap dijelajahi"
+        : "Setelah Lv. 3";
+    steps.push(
+      `<li class="route-step ${endlessActive ? "current" : endlessUnlocked ? "complete" : "locked"}" ${endlessActive ? 'aria-current="step"' : ""}><span class="route-number">∞</span><div><strong>${ENDLESS.name}</strong><span>Tanpa batas waktu · Gelombang abadi</span></div><span class="route-status">${endlessStatus}</span></li>`,
+    );
+    $("levelRoute").innerHTML = steps.join("");
   }
 
   function setState(next) {
@@ -324,7 +380,8 @@
     if (!assetsReady) return;
     score = levelStartScore;
     levelScore = 0;
-    timeLeft = currentLevel().duration;
+    endlessWave = 1;
+    timeLeft = isEndless() ? 0 : currentLevel().duration;
     health = CONFIG.lives;
     elapsed = 0;
     combo = 0;
@@ -346,13 +403,16 @@
     popups = [];
     trail = [];
     coins = Array.from({ length: W < 700 ? 4 : 5 }, newCoin);
-    $("sectorLabel").textContent =
-      `Level ${levelIndex + 1} · ${currentLevel().name}`;
+    $("sectorLabel").textContent = isEndless()
+      ? `Mode Endless · Gelombang 1`
+      : `Level ${levelIndex + 1} · ${currentLevel().name}`;
     $("flightStatus").textContent = `Nomad · ${currentLevel().difficulty}`;
     setState("playing");
     window.GameAudio.startMusic(true);
     announce(
-      `Level ${levelIndex + 1} dimulai. Kejar ${currentLevel().target} poin!`,
+      isEndless()
+        ? "Mode Endless dimulai! Bertahanlah selama mungkin!"
+        : `Level ${levelIndex + 1} dimulai. Kejar ${currentLevel().target} poin!`,
     );
   }
 
@@ -365,7 +425,7 @@
   }
 
   function nextLevel() {
-    if (state !== "level-complete" || levelIndex >= LEVELS.length - 1) return;
+    if (state !== "level-complete" || levelIndex >= LEVELS.length) return;
     levelStartScore = score;
     levelIndex++;
     beginLevel();
@@ -384,8 +444,9 @@
       pointer.active = false;
       setState("paused");
       $("overlayTitle").innerHTML = "Jeda dulu.<br>Tarik napas.";
-      $("overlayDescription").textContent =
-        `Level ${levelIndex + 1} tetap aman. Timer dan posisi dibekukan.`;
+      $("overlayDescription").textContent = isEndless()
+        ? `Mode Endless (Gelombang ${endlessWave}) tetap aman. Waktu dan posisi dibekukan.`
+        : `Level ${levelIndex + 1} tetap aman. Timer dan posisi dibekukan.`;
       $("startLabel").textContent = "Lanjutkan misi";
       $("result").hidden = true;
       $("enterHint").innerHTML = "atau tekan <kbd>P</kbd>";
@@ -399,7 +460,9 @@
   function finish(won, reason) {
     if (state !== "playing") return;
     const oldBest = best;
-    const bonus = won ? Math.ceil(timeLeft) * 2 + health * 20 : 0;
+    const endless = isEndless();
+    const bonus =
+      won && !endless ? Math.ceil(timeLeft) * 2 + health * 20 : 0;
     score += bonus;
     if (won) completedLevels = Math.max(completedLevels, levelIndex + 1);
     if (score > best) {
@@ -409,36 +472,42 @@
       } catch {}
       $("highScore").textContent = best;
     }
-    const finalLevel = levelIndex === LEVELS.length - 1;
-    const next = !won ? "game-over" : finalLevel ? "victory" : "level-complete";
+    const finalCampaignLevel = levelIndex === LEVELS.length - 1;
+    const next = !won ? "game-over" : "level-complete";
     pointer.active = false;
     keys.clear();
     popups = [];
     setState(next);
-    sound(!won ? "lost" : finalLevel ? "won" : "level");
+    sound(!won ? "lost" : finalCampaignLevel ? "won" : "level");
     $("overlayTitle").innerHTML = won
-      ? finalLevel
-        ? "Tiga level.<br>Satu legenda."
+      ? finalCampaignLevel
+        ? "Tiga orbit tuntas.<br>Masuki Endless."
         : levelIndex === 0
           ? "Kepler tuntas.<br>Orion menunggu."
           : "Orion tuntas.<br>Satu orbit lagi."
-      : reason === "time"
-        ? "Waktu habis.<br>Sekali lagi?"
-        : "Kena asteroid.<br>Balas di orbit.";
+      : endless
+        ? `Misi abadi usai.<br>Gelombang ${endlessWave}.`
+        : reason === "time"
+          ? "Waktu habis.<br>Sekali lagi?"
+          : "Kena asteroid.<br>Balas di orbit.";
     $("overlayDescription").textContent = won
-      ? finalLevel
-        ? `Ekspedisi selesai. Bonus level terakhir +${bonus} poin.`
+      ? finalCampaignLevel
+        ? `Bonus +${bonus} poin. Mode Endless terbuka: terbang tanpa batas waktu dan kejar skor tertinggi!`
         : `Bonus +${bonus} poin. Berikutnya: ${LEVELS[levelIndex + 1].target} poin dalam ${LEVELS[levelIndex + 1].duration} detik.`
-      : `Level ${levelIndex + 1} belum selesai. Ulangi level ini; skor level sebelumnya tetap aman.`;
+      : endless
+        ? `Bertahan selama ${formatClock(elapsed)} di Mode Endless. Main lagi di Endless dari skor akhir Level 3 (${levelStartScore} poin) tanpa balik ke Level 1.`
+        : `Level ${levelIndex + 1} belum selesai. Ulangi level ini; skor level sebelumnya tetap aman.`;
     $("result").hidden = false;
     $("resultScore").textContent = score;
     $("resultDetail").textContent =
       `skor total${score > oldBest ? " · rekor baru!" : ""}`;
     $("startLabel").textContent = won
-      ? finalLevel
-        ? "Main dari awal"
+      ? finalCampaignLevel
+        ? "Lanjut ke Mode Endless"
         : `Lanjut ke level ${levelIndex + 2}`
-      : `Ulangi level ${levelIndex + 1}`;
+      : endless
+        ? "Main lagi di Endless"
+        : `Ulangi level ${levelIndex + 1}`;
     $("enterHint").innerHTML = "atau tekan <kbd>Enter</kbd>";
     $("flightStatus").textContent = won
       ? "Nomad · Level berhasil"
@@ -492,7 +561,7 @@
     particles = particles.filter((p) => p.life > 0);
     if (state !== "playing") return;
     elapsed += dt;
-    timeLeft = Math.max(0, timeLeft - dt);
+    if (!isEndless()) timeLeft = Math.max(0, timeLeft - dt);
     invincible = Math.max(0, invincible - dt);
     dashCooldown = Math.max(0, dashCooldown - dt);
     dashTime = Math.max(0, dashTime - dt);
@@ -592,7 +661,44 @@
         sound("coin");
         haptic(10);
         Object.assign(coin, newCoin());
-        if (levelScore >= currentLevel().target) {
+        if (score > best) {
+          best = score;
+          try {
+            localStorage.setItem("spaceExplorerCampaignBest", best);
+          } catch {}
+          $("highScore").textContent = best;
+        }
+        if (isEndless()) {
+          const nextWave = 1 + Math.floor(levelScore / ENDLESS.wavePoints);
+          if (nextWave > endlessWave) {
+            endlessWave = nextWave;
+            score += ENDLESS.waveBonus;
+            if (score > best) {
+              best = score;
+              try {
+                localStorage.setItem("spaceExplorerCampaignBest", best);
+              } catch {}
+              $("highScore").textContent = best;
+            }
+            if (health < CONFIG.lives) health++;
+            sound("level");
+            haptic([20, 40, 30]);
+            burst(player.x, player.y, C.mint, 32);
+            popup(
+              player.x,
+              player.y - 32,
+              `Gelombang ${endlessWave}! +${ENDLESS.waveBonus}`,
+              C.mint,
+            );
+            $("sectorLabel").textContent =
+              `Mode Endless · Gelombang ${endlessWave}`;
+            $("flightStatus").textContent = `Nomad · Gelombang ${endlessWave}`;
+            announce(
+              `Gelombang ${endlessWave}! Bonus +${ENDLESS.waveBonus} poin & +1 nyawa.`,
+            );
+            renderRoute();
+          }
+        } else if (levelScore >= currentLevel().target) {
           finish(true);
           return;
         }
@@ -638,7 +744,7 @@
       p.life -= dt;
     });
     popups = popups.filter((p) => p.life > 0);
-    if (timeLeft <= 0) {
+    if (!isEndless() && timeLeft <= 0) {
       finish(false, "time");
       return;
     }
