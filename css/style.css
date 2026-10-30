@@ -1655,46 +1655,59 @@ button {
   border: 0;
 }
 
-.pilot-score-box {
+.pilot-init-box {
+  margin-top: 18px;
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  margin-top: 14px;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 280px;
 }
 
-.pilot-score-box input,
-.leaderboard-pilot-form input {
+.pilot-init-box input {
   background: var(--raised);
-  border: 1px solid var(--line);
+  border: 1.5px solid var(--line);
   border-radius: 100px;
   color: var(--ink);
   font: inherit;
-  font-size: 12px;
-  padding: 9px 14px;
-  width: 175px;
+  font-size: 13px;
+  padding: 11px 16px;
+  width: 100%;
   outline: none;
   user-select: text;
   -webkit-user-select: text;
+  transition: border-color 0.15s;
 }
 
-.pilot-score-box input:focus,
-.leaderboard-pilot-form input:focus {
+.pilot-init-box input:focus {
   border-color: var(--accent);
 }
 
-.secondary-pill {
-  background: var(--raised);
-  border: 1px solid var(--line);
-  color: var(--ink);
-  border-radius: 100px;
-  padding: 9px 15px;
-  font-size: 12px;
-  font-weight: 500;
+.pilot-init-box input.input-error {
+  border-color: var(--danger);
 }
 
-.secondary-pill:hover {
-  background: var(--line);
+.pilot-init-hint {
+  font-size: 11px;
+  color: var(--muted);
+  margin-left: 12px;
+}
+
+.pilot-init-hint.error {
+  color: var(--danger);
+}
+
+.pilot-identity-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.pilot-identity-bar strong {
+  color: var(--ink);
+  font-weight: 600;
 }
 
 .text-link-button {
@@ -1702,7 +1715,7 @@ button {
   color: var(--accent);
   font-size: 12px;
   font-weight: 500;
-  padding: 6px 8px;
+  padding: 4px 6px;
 }
 
 .text-link-button:hover {
@@ -1754,15 +1767,27 @@ button {
   color: var(--muted);
 }
 
-.leaderboard-pilot-form {
+.leaderboard-pilot-info {
   display: flex;
-  gap: 8px;
-  margin-top: 16px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 9px 13px;
+  background: var(--raised);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--muted);
 }
 
-.leaderboard-pilot-form input {
-  flex: 1;
-  width: auto;
+.leaderboard-pilot-info strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.auto-sync-tag {
+  font-size: 11px;
+  color: var(--mint);
 }
 
 .leaderboard-list {

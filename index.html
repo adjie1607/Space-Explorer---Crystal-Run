@@ -167,30 +167,31 @@
                     <strong id="resultScore">0</strong
                     ><span id="resultDetail">poin terkumpul</span>
                   </div>
-                  <div class="pilot-score-box" id="pilotScoreBox" hidden>
-                    <label class="sr-only" for="pilotNameInput"
-                      >Nama pilot</label
+                  <div class="pilot-init-box" id="pilotInitBox">
+                    <label class="sr-only" for="initialPilotInput"
+                      >Nama pilot (sekali isi untuk perangkat ini)</label
                     >
                     <input
                       type="text"
-                      id="pilotNameInput"
+                      id="initialPilotInput"
                       maxlength="14"
-                      placeholder="Nama pilot (mis. ADJIE)"
+                      placeholder="Masukkan nama pilot Anda…"
                       autocomplete="nickname"
                     />
-                    <button
-                      type="button"
-                      class="secondary-pill"
-                      id="submitScoreButton"
+                    <span class="pilot-init-hint" id="pilotInitHint"
+                      >Diisi sekali per perangkat · Rekor tercatat otomatis</span
                     >
-                      Simpan skor
-                    </button>
+                  </div>
+                  <div class="pilot-identity-bar" id="pilotIdentityBar" hidden>
+                    <span
+                      >Pilot: <strong id="pilotIdentityName">-</strong></span
+                    >
                     <button
                       type="button"
                       class="text-link-button"
                       id="overlayLeaderboardButton"
                     >
-                      Peringkat
+                      Lihat peringkat →
                     </button>
                   </div>
                   <button class="primary-button" id="startButton" disabled>
@@ -501,21 +502,15 @@
         </button>
       </div>
       <p class="leaderboard-sub" id="leaderboardSubtitle">
-        10 pilot dengan skor tertinggi sepanjang ekspedisi.
+        10 pilot terbaik. Skor tertinggi otomatis diperbarui saat bermain.
       </p>
-      <form class="leaderboard-pilot-form" id="dialogPilotForm">
-        <label class="sr-only" for="dialogPilotInput">Callsign pilot</label>
-        <input
-          type="text"
-          id="dialogPilotInput"
-          maxlength="14"
-          placeholder="Callsign pilot Anda…"
-          autocomplete="nickname"
-        />
-        <button type="submit" class="secondary-pill" id="dialogPilotSubmit">
-          Catat rekor saya
-        </button>
-      </form>
+      <div class="leaderboard-pilot-info" id="dialogPilotInfo" hidden>
+        <span
+          >Pilot perangkat ini:
+          <strong id="dialogPilotName">-</strong></span
+        >
+        <span class="auto-sync-tag">Sinkron otomatis</span>
+      </div>
       <ol
         class="leaderboard-list"
         id="leaderboardList"

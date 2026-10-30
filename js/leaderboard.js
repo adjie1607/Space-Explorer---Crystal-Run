@@ -1,44 +1,69 @@
 "use strict";
 
-// Pengelola Leaderboard Hibrida:
-// 1. Mendukung Global Online via Firebase Realtime Database REST API atau Supabase REST API.
-// 2. Otomatis menyimpan & melakukan fallback ke localStorage (Lokal) saat offline atau belum dikonfigurasi.
+// Pengelola Leaderboard Otomatis (1 Perangkat = 1 Nama Pilot Permanen):
+// - Nama pilot hanya diisi satu kali di awal permainan untuk perangkat tersebut.
+// - Skor terbaik otomatis disinkronkan ke Leaderboard (Lokal & Global Online) tanpa tombol manual.
 window.GameLeaderboard = (() => {
   const CFG = window.GameConfig.leaderboard || {};
-  const STORAGE_KEY = "spaceExplorerLeaderboardV1";
-  const PILOT_KEY = "spaceExplorerPilotName";
+  const STORAGE_KEY = "spaceExplorerLeaderboardV2";
+  const LEGACY_STORAGE_KEY = "spaceExplorerLeaderboardV1";
+  const PILOT_KEY = "spaceExplorerPilotNameLocked";
+  const DEVICE_KEY = "spaceExplorerDeviceId";
   const MAX_ENTRIES = CFG.maxEntries || 10;
 
   function cleanPilotName(raw) {
-    const cleaned = String(raw || "")
+    return String(raw || "")
       .replace(/[^\p{L}\p{N}\s._-]/gu, "")
       .trim()
       .slice(0, 14);
-    return cleaned || "PILOT NOMAD";
   }
 
-  function pilotId(name) {
-    return (
-      cleanPilotName(name)
-        .toLowerCase()
-        .replace(/[^a-z0-9_-]/g, "_")
-        .replace(/_+/g, "_")
-        .replace(/^_|_$/g, "") || "pilot_nomad"
-    );
-  }
-
-  function getPilotName() {
+  function getDeviceId() {
     try {
-      return localStorage.getItem(PILOT_KEY) || "";
+      let id = localStorage.getItem(DEVICE_KEY);
+      if (!id) {
+        id =
+          "dev_" +
+          Date.now().toString(36) +
+          "_" +
+          Math.random().toString(36).slice(2, 10);
+        localStorage.setItem(DEVICE_KEY, id);
+      }
+      return id;
     } catch {
-      return "";
+      return "dev_local_session";
     }
   }
 
-  function setPilotName(name) {
-    const cleaned = cleanPilotName(name);
+  let memoryPilotName = "";
+
+  function getPilotName() {
+    if (memoryPilotName) return memoryPilotName;
+    try {
+      const locked = cleanPilotName(localStorage.getItem(PILOT_KEY));
+      if (locked) {
+        memoryPilotName = locked;
+        return locked;
+      }
+    } catch {}
+    return "";
+  }
+
+  function hasPilotName() {
+    return Boolean(getPilotName());
+  }
+
+  // Hanya mengizinkan pendaftaran nama pilot SEKALI untuk satu perangkat.
+  function registerPilotOnce(rawName) {
+    const existing = getPilotName();
+    if (existing) return existing;
+    const cleaned = cleanPilotName(rawName);
+    if (!cleaned) return "";
+    memoryPilotName = cleaned;
     try {
       localStorage.setItem(PILOT_KEY, cleaned);
+      // Bersihkan data percobaan lama jika ada
+      localStorage.removeItem(LEGACY_STORAGE_KEY);
     } catch {}
     return cleaned;
   }
@@ -61,27 +86,29 @@ window.GameLeaderboard = (() => {
   }
 
   function normalizeEntries(list) {
-    const byPilot = new Map();
+    const byDevice = new Map();
     (Array.isArray(list) ? list : []).forEach((item) => {
       if (!item || typeof item.score !== "number" || item.score <= 0) return;
       const name = cleanPilotName(item.name);
-      const key = pilotId(name);
+      if (!name) return;
+      const devId = String(item.deviceId || "id_" + name.toLowerCase());
       const entry = {
+        deviceId: devId,
         name,
         score: Math.floor(item.score),
         stage: String(item.stage || "Level 1").slice(0, 28),
         updatedAt: Number(item.updatedAt) || Date.now(),
       };
-      const existing = byPilot.get(key);
+      const existing = byDevice.get(devId);
       if (
         !existing ||
         entry.score > existing.score ||
-        (entry.score === existing.score && entry.updatedAt < existing.updatedAt)
+        (entry.score === existing.score && entry.updatedAt > existing.updatedAt)
       ) {
-        byPilot.set(key, entry);
+        byDevice.set(devId, entry);
       }
     });
-    return [...byPilot.values()]
+    return [...byDevice.values()]
       .sort((a, b) => b.score - a.score || a.updatedAt - b.updatedAt)
       .slice(0, MAX_ENTRIES);
   }
@@ -97,7 +124,12 @@ window.GameLeaderboard = (() => {
   }
 
   function saveLocalEntry(entry) {
-    const merged = normalizeEntries([...getLocalEntries(), entry]);
+    const current = getLocalEntries();
+    const existing = current.find((item) => item.deviceId === entry.deviceId);
+    if (existing && existing.score >= entry.score) {
+      return current;
+    }
+    const merged = normalizeEntries([...current, entry]);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
     } catch {}
@@ -115,7 +147,7 @@ window.GameLeaderboard = (() => {
 
   async function submitFirebaseEntry(entry) {
     const base = CFG.firebaseUrl.trim().replace(/\/+$/, "");
-    const key = encodeURIComponent(pilotId(entry.name));
+    const key = encodeURIComponent(entry.deviceId);
     const url = `${base}/leaderboard/${key}.json`;
     try {
       const check = await fetch(url, { cache: "no-store" });
@@ -142,7 +174,7 @@ window.GameLeaderboard = (() => {
     const base = CFG.supabaseUrl.trim().replace(/\/+$/, "");
     const key = CFG.supabaseAnonKey.trim();
     const res = await fetch(
-      `${base}/rest/v1/leaderboard?select=name,score,stage,updatedAt&order=score.desc&limit=${MAX_ENTRIES}`,
+      `${base}/rest/v1/leaderboard?select=deviceId:pilot_id,name,score,stage,updatedAt&order=score.desc&limit=${MAX_ENTRIES}`,
       {
         headers: {
           apikey: key,
@@ -168,7 +200,7 @@ window.GameLeaderboard = (() => {
         Prefer: "resolution=merge-duplicates",
       },
       body: JSON.stringify({
-        pilot_id: pilotId(entry.name),
+        pilot_id: entry.deviceId,
         name: entry.name,
         score: entry.score,
         stage: entry.stage,
@@ -194,14 +226,14 @@ window.GameLeaderboard = (() => {
     }
   }
 
-  async function submitScore({ name, score, stage }) {
-    const cleanName = setPilotName(name);
+  // Dipanggil otomatis oleh game saat skor naik / level selesai / game over.
+  async function syncAutoScore({ score, stage }) {
+    const pilotName = getPilotName();
     const numericScore = Math.max(0, Math.floor(Number(score) || 0));
-    if (numericScore <= 0) {
-      return fetchLeaderboard();
-    }
+    if (!pilotName || numericScore <= 0) return;
     const entry = {
-      name: cleanName,
+      deviceId: getDeviceId(),
+      name: pilotName,
       score: numericScore,
       stage: String(stage || "Orbit Kepler"),
       updatedAt: Date.now(),
@@ -212,19 +244,20 @@ window.GameLeaderboard = (() => {
         if (isFirebaseConfigured()) await submitFirebaseEntry(entry);
         else if (isSupabaseConfigured()) await submitSupabaseEntry(entry);
       } catch {
-        // Tetap tersimpan secara lokal bila koneksi internet sedang terputus.
+        // Tetap aman di penyimpanan lokal saat offline.
       }
     }
-    return fetchLeaderboard();
   }
 
   return Object.freeze({
     cleanPilotName,
+    getDeviceId,
     getPilotName,
-    setPilotName,
+    hasPilotName,
+    registerPilotOnce,
     isOnlineConfigured,
     getLocalEntries,
     fetchLeaderboard,
-    submitScore,
+    syncAutoScore,
   });
 })();
