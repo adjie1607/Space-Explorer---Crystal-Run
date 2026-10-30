@@ -1,6 +1,6 @@
 "use strict";
 
-const CACHE_NAME = "space-explorer-v4";
+const CACHE_NAME = "space-explorer-v5";
 const PRECACHE_ASSETS = [
   "./",
   "./index.html",
@@ -60,27 +60,28 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+// Strategi Network-First dengan Fallback Offline:
+// Saat online, selalu ambil file terbaru dari GitHub Pages agar update langsung terlihat.
+// Saat offline, otomatis gunakan aset dari Cache Storage.
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
   // Jangan cache request API eksternal (Firebase / Supabase Leaderboard Online).
   if (url.origin !== self.location.origin) return;
+
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-      return fetch(event.request)
-        .then((response) => {
-          if (
-            response &&
-            response.status === 200 &&
-            response.type === "basic"
-          ) {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-          }
-          return response;
-        })
-        .catch(() => caches.match("./index.html"));
-    }),
+    fetch(event.request)
+      .then((response) => {
+        if (response && response.status === 200 && response.type === "basic") {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+        }
+        return response;
+      })
+      .catch(() =>
+        caches
+          .match(event.request)
+          .then((cached) => cached || caches.match("./index.html")),
+      ),
   );
 });

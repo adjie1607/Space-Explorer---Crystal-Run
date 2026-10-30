@@ -88,10 +88,16 @@ window.GameLeaderboard = (() => {
   function normalizeEntries(list) {
     const byDevice = new Map();
     (Array.isArray(list) ? list : []).forEach((item) => {
-      if (!item || typeof item.score !== "number" || item.score <= 0) return;
+      if (
+        !item ||
+        !item.deviceId ||
+        typeof item.score !== "number" ||
+        item.score <= 0
+      )
+        return;
       const name = cleanPilotName(item.name);
       if (!name) return;
-      const devId = String(item.deviceId || "id_" + name.toLowerCase());
+      const devId = String(item.deviceId);
       const entry = {
         deviceId: devId,
         name,

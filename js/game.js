@@ -1342,8 +1342,18 @@
       window.location.hostname === "localhost" ||
       window.location.hostname === "127.0.0.1")
   ) {
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (!refreshing && state === "ready") {
+        refreshing = true;
+        window.location.reload();
+      }
+    });
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("./sw.js").catch(() => {});
+      navigator.serviceWorker
+        .register("./sw.js")
+        .then((reg) => reg.update())
+        .catch(() => {});
     });
   }
   // Inisialisasi: tunggu gambar lengkap sebelum tombol mulai dapat digunakan.
