@@ -1,0 +1,1640 @@
+@font-face {
+  font-family: Inter;
+  src: url("../assets/fonts/Inter-Variable.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Barlow Condensed";
+  src: url("../assets/fonts/BarlowCondensed-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-display: swap;
+}
+
+:root {
+  --ground: #111210;
+  --surface: #1b1c19;
+  --raised: #262723;
+  --arena: #101512;
+  --ink: #eeeeea;
+  --muted: #a3a69d;
+  --accent: #ed8c50;
+  --mint: #a8c9ac;
+  --danger: #ed866b;
+  --line: #35382f;
+  --font: Inter, Arial, sans-serif;
+  --display: "Barlow Condensed", Impact, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 5px;
+}
+
+button {
+  border: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+p,
+h1,
+h2,
+h3 {
+  margin: 0;
+}
+
+button {
+  transition:
+    background 0.18s,
+    transform 0.18s;
+}
+
+button:not(:disabled):active {
+  transform: translateY(2px);
+}
+
+[hidden] {
+  display: none !important;
+}
+
+.shell {
+  max-width: 1440px;
+  margin: auto;
+  padding: 0 52px;
+}
+
+.header {
+  height: 96px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  font-size: 21px;
+  letter-spacing: -0.8px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.brand > img {
+  width: 46px;
+  height: 46px;
+  stroke: var(--ink);
+  stroke-width: 1.3;
+}
+
+.brand > svg path {
+  fill: var(--ink);
+  stroke: none;
+}
+
+.brand-sub {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.15px;
+  color: var(--muted);
+}
+
+nav {
+  display: flex;
+  gap: 26px;
+  align-items: center;
+}
+
+.text-button {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  background: transparent;
+  font-size: 13px;
+  color: var(--muted);
+  padding: 9px 0;
+}
+
+.text-button:hover {
+  color: var(--ink);
+}
+
+.text-button svg {
+  width: 19px;
+  height: 19px;
+}
+
+.help-symbol {
+  border: 1px solid currentColor;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  font-size: 11px;
+  line-height: 15px;
+}
+
+.title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 8px 0 22px;
+}
+
+h1 {
+  font-size: 30px;
+  line-height: 1.2;
+  letter-spacing: -1px;
+  font-weight: 600;
+}
+
+.title-row p {
+  margin-top: 9px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.mission-status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.mission-status i,
+.location i {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: var(--mint);
+  border-radius: 50%;
+}
+
+/* At 1440px: 1336px = 1056px arena + 24px gutter + 256px guide. */
+.game-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 256px;
+  gap: 24px;
+}
+
+.game-panel {
+  min-width: 0;
+  background: var(--surface);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.hud {
+  display: flex;
+  align-items: center;
+  gap: 54px;
+  padding: 20px 28px;
+  height: 88px;
+}
+
+.stat > span {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.stat strong {
+  display: block;
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+}
+
+.target {
+  color: var(--muted);
+  margin-left: 4px;
+}
+
+.score-stat strong {
+  color: var(--accent);
+}
+
+.lives {
+  display: flex;
+  gap: 7px;
+  margin-top: 10px;
+  height: 24px;
+}
+
+.lives svg {
+  width: 21px;
+  height: 21px;
+  fill: var(--ink);
+  stroke: none;
+}
+
+.lives svg.lost {
+  fill: var(--line);
+}
+
+.icon-button {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  background: var(--raised);
+  border-radius: 50%;
+  margin-left: auto;
+}
+
+.icon-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.icon-button:hover {
+  background: var(--line);
+}
+
+.arena {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2.2;
+  background: var(--arena);
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.arena canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  outline: none;
+}
+
+.arena-top,
+.arena-bottom {
+  position: absolute;
+  left: 26px;
+  right: 26px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+  font-size: 11px;
+  color: var(--muted);
+  z-index: 2;
+}
+
+.arena-top {
+  top: 20px;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.arena-top > span {
+  max-width: 48%;
+}
+
+.arena-top > span:last-child {
+  text-align: right;
+}
+
+.arena-top > span:first-child {
+  color: var(--ink);
+  font-size: 11px;
+}
+
+.arena-bottom {
+  bottom: 17px;
+}
+
+.location {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.location i {
+  width: 4px;
+  height: 4px;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding: 60px 6%;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.overlay-content {
+  max-width: 410px;
+  pointer-events: auto;
+}
+
+.overlay h2 {
+  font-family: var(--display);
+  font-size: clamp(60px, 6vw, 86px);
+  font-weight: 600;
+  line-height: 0.94;
+  letter-spacing: -1px;
+}
+
+.overlay p {
+  color: #b9bcb1;
+  font-size: 13px;
+  line-height: 1.8;
+  margin-top: 22px;
+}
+
+.primary-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 36px;
+  background: var(--ink);
+  color: var(--ground);
+  border-radius: 100px;
+  padding: 15px 23px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 25px;
+  min-height: 46px;
+}
+
+.primary-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.primary-button:hover {
+  background: #fff;
+}
+
+.enter-hint {
+  display: block;
+  font-size: 11px;
+  margin: 12px 0 0 18px;
+  color: var(--muted);
+}
+
+kbd {
+  font-family: var(--font);
+  font-size: 11px;
+  display: inline-grid;
+  place-items: center;
+  height: 24px;
+  min-width: 23px;
+  padding: 0 5px;
+  border-radius: 4px;
+  background: var(--raised);
+  color: var(--ink);
+}
+
+.enter-hint kbd {
+  background: transparent;
+  padding: 0;
+  min-width: 0;
+  font-size: 11px;
+  height: auto;
+  color: var(--ink);
+}
+
+.controls-bar {
+  min-height: 62px;
+  padding: 12px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.desktop-instruction {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.desktop-instruction > span {
+  margin-left: 8px;
+}
+
+.dash-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  font-size: 11px;
+  padding: 8px 0;
+}
+
+.dash-control kbd {
+  font-size: 11px;
+  min-width: 38px;
+}
+
+.dash-track {
+  width: 39px;
+  height: 3px;
+  background: var(--line);
+  margin-left: 3px;
+}
+
+.dash-track i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--mint);
+}
+
+.pause-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.touch-instruction {
+  display: none;
+}
+
+.mission-guide {
+  padding: 22px 21px;
+  background: var(--surface);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+}
+
+.guide-heading {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.brief h2 {
+  font-size: 25px;
+  font-weight: 500;
+  line-height: 1.17;
+  letter-spacing: -0.8px;
+  margin-top: 12px;
+}
+
+.brief > p {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.8;
+  margin-top: 15px;
+}
+
+.progress {
+  height: 4px;
+  background: var(--line);
+  margin-top: 20px;
+  overflow: hidden;
+}
+
+.progress i {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.2s;
+}
+
+.progress-label {
+  font-size: 11px;
+  display: block;
+  color: var(--muted);
+  margin-top: 7px;
+  font-variant-numeric: tabular-nums;
+}
+
+.field-guide {
+  margin-top: 22px;
+}
+
+.field-guide h3 {
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+.guide-item {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.guide-item > svg {
+  width: 33px;
+  height: 40px;
+  flex-shrink: 0;
+  stroke-width: 1.5;
+}
+
+.crystal-icon {
+  color: var(--accent);
+  fill: #473526;
+}
+
+.crystal-icon path:first-child {
+  fill: #9b633b;
+}
+
+.crystal-icon path:nth-child(2) {
+  fill: #edb274;
+}
+
+.rock-icon {
+  color: #b7b3a2;
+  fill: #4b4c40;
+}
+
+.rock-icon path:nth-child(2) {
+  fill: #626252;
+}
+
+.repair-icon {
+  color: var(--mint);
+  fill: #334a3c;
+}
+
+.repair-icon path:nth-child(2) {
+  stroke-width: 3;
+}
+
+.guide-item strong {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.guide-item p {
+  font-size: 13px;
+  line-height: 1.7;
+  margin-top: 3px;
+  color: var(--muted);
+}
+
+.pilot-note {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.pilot-note svg {
+  width: 18px;
+  height: 23px;
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.pilot-note p {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.pilot-note strong {
+  display: block;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 0 30px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.record {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.record svg {
+  width: 16px;
+  height: 16px;
+}
+
+.record strong {
+  font-size: 13px;
+  color: var(--ink);
+  font-weight: 500;
+  min-width: 18px;
+  font-variant-numeric: tabular-nums;
+}
+
+.announcement {
+  position: absolute;
+  top: 54px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 17px;
+  background: var(--raised);
+  font-size: 13px;
+  border-radius: 100px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  pointer-events: none;
+  z-index: 4;
+  white-space: nowrap;
+}
+
+.announcement.visible {
+  opacity: 1;
+}
+
+.result {
+  margin-top: 18px;
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.result strong {
+  font-size: 34px;
+  color: var(--accent);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.result span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.is-playing .overlay {
+  display: none;
+}
+
+.is-playing .arena {
+  cursor: crosshair;
+}
+
+.is-paused .overlay,
+.is-ended .overlay {
+  background: #101512ed;
+}
+
+.is-paused .overlay-content,
+.is-ended .overlay-content {
+  max-width: 100%;
+}
+
+.is-paused .overlay h2,
+.is-ended .overlay h2 {
+  font-size: 64px;
+}
+
+.timer-urgent {
+  color: var(--danger);
+}
+
+dialog {
+  background: var(--surface);
+  color: var(--ink);
+  border: 0;
+  border-radius: 8px;
+  padding: 36px;
+  width: min(520px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+}
+
+dialog::backdrop {
+  background: #080a08dc;
+}
+
+dialog h2 {
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -1px;
+  margin: 0 38px 16px 0;
+}
+
+dialog p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+dialog ul {
+  padding-left: 20px;
+  margin: 20px 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+dialog li {
+  margin: 12px 0;
+}
+
+dialog strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.close-button {
+  position: absolute;
+  right: 20px;
+  top: 22px;
+  font-size: 24px;
+}
+
+.noscript {
+  text-align: center;
+  padding: 20px;
+}
+
+@media (min-width: 1500px) {
+  .shell {
+    padding: 0 48px;
+  }
+  .arena {
+    aspect-ratio: 2.2;
+  }
+}
+
+@media (max-width: 1150px) {
+  .shell {
+    padding: 0 30px;
+  }
+  .game-layout {
+    grid-template-columns: minmax(0, 1fr) 225px;
+    gap: 18px;
+  }
+  .mission-guide {
+    padding: 22px 18px;
+  }
+  .arena {
+    aspect-ratio: 1.45;
+  }
+  .hud {
+    gap: 36px;
+    padding: 20px 23px;
+  }
+  .overlay h2 {
+    font-size: 68px;
+  }
+  .overlay {
+    padding-left: 7%;
+  }
+  .controls-bar {
+    padding: 10px 20px;
+    gap: 8px;
+  }
+  .desktop-instruction > span {
+    display: none;
+  }
+  .field-guide {
+    margin-top: 25px;
+  }
+  .guide-item {
+    gap: 10px;
+  }
+  .footer {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 850px) {
+  .shell {
+    padding: 0 24px;
+  }
+  .header {
+    height: 94px;
+  }
+  .game-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mission-guide {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 28px;
+    padding: 24px;
+  }
+  .brief h2 {
+    font-size: 25px;
+  }
+  .brief h2 br {
+    display: none;
+  }
+  .brief > p {
+    max-width: 280px;
+  }
+  .field-guide {
+    margin: 0;
+  }
+  .field-guide h3 {
+    margin-bottom: 16px;
+  }
+  .guide-item {
+    margin-bottom: 14px;
+  }
+  .guide-item p br {
+    display: none;
+  }
+  .pilot-note {
+    display: none;
+  }
+  .arena {
+    aspect-ratio: 1.7;
+  }
+  .overlay h2 {
+    font-size: 78px;
+  }
+  .hud {
+    gap: 64px;
+  }
+  .mission-status {
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 540px) {
+  .shell {
+    padding: 0 16px;
+  }
+  .header {
+    height: 84px;
+  }
+  .brand {
+    font-size: 16px;
+    gap: 9px;
+  }
+  .brand > img {
+    width: 35px;
+    height: 35px;
+  }
+  .brand-sub {
+    font-size: 11px;
+    letter-spacing: 0;
+    margin-top: 4px;
+  }
+  nav {
+    gap: 18px;
+  }
+  .text-button {
+    padding: 10px 0;
+  }
+  .text-button > span:not(.help-symbol) {
+    display: none;
+  }
+  .text-button svg {
+    width: 18px;
+  }
+  .title-row {
+    margin: 14px 0 20px;
+    gap: 12px;
+  }
+  h1 {
+    font-size: 25px;
+    letter-spacing: -0.7px;
+  }
+  .title-row p {
+    font-size: 11px;
+    max-width: 225px;
+    line-height: 1.7;
+    margin-top: 7px;
+  }
+  .mission-status {
+    align-self: flex-start;
+    font-size: 11px;
+    gap: 6px;
+    margin-top: 9px;
+    white-space: nowrap;
+  }
+  .mission-status i {
+    width: 4px;
+    height: 4px;
+  }
+  .hud {
+    height: 83px;
+    padding: 16px 18px;
+    gap: 0;
+    justify-content: space-between;
+  }
+  .stat strong {
+    font-size: 25px;
+  }
+  .stat > span {
+    font-size: 11px;
+  }
+  .lives {
+    gap: 5px;
+    margin-top: 9px;
+  }
+  .lives svg {
+    width: 17px;
+    height: 17px;
+  }
+  .icon-button {
+    width: 31px;
+    height: 31px;
+  }
+  .hud > .icon-button {
+    margin-left: 0;
+  }
+  .arena {
+    aspect-ratio: 0.89;
+  }
+  .arena-top,
+  .arena-bottom {
+    left: 18px;
+    right: 18px;
+    font-size: 11px;
+  }
+  .arena-top {
+    top: 16px;
+  }
+  .arena-top > span:first-child {
+    font-size: 11px;
+  }
+  .arena-bottom {
+    bottom: 14px;
+  }
+  .arena-bottom > span:last-child {
+    display: none;
+  }
+  .overlay {
+    align-items: flex-start;
+    padding: 63px 26px;
+  }
+  .overlay h2 {
+    font-size: 67px;
+  }
+  .overlay p {
+    font-size: 11px;
+    margin-top: 16px;
+    line-height: 1.75;
+  }
+  .primary-button {
+    font-size: 13px;
+    padding: 13px 20px;
+    margin-top: 20px;
+    gap: 26px;
+  }
+  .enter-hint {
+    display: none;
+  }
+  .controls-bar {
+    min-height: 62px;
+    padding: 10px 17px;
+  }
+  .desktop-instruction,
+  .pause-hint {
+    display: none;
+  }
+  .touch-instruction {
+    display: block;
+    font-size: 11px;
+  }
+  .dash-control {
+    font-size: 13px;
+    padding: 9px 0;
+  }
+  .dash-control kbd {
+    display: none;
+  }
+  .dash-track {
+    width: 32px;
+  }
+  .mission-guide {
+    padding: 22px;
+    gap: 28px;
+    display: block;
+  }
+  .brief h2 {
+    font-size: 25px;
+  }
+  .brief > p {
+    font-size: 13px;
+    max-width: none;
+  }
+  .field-guide {
+    margin-top: 26px;
+  }
+  .field-guide h3 {
+    font-size: 13px;
+  }
+  .guide-item strong {
+    font-size: 13px;
+  }
+  .guide-item p {
+    font-size: 13px;
+  }
+  .guide-item {
+    gap: 15px;
+    margin-bottom: 19px;
+  }
+  .guide-item:last-child {
+    margin-bottom: 0;
+  }
+  .guide-item > svg {
+    width: 32px;
+  }
+  .progress-label {
+    font-size: 11px;
+  }
+  .footer {
+    padding: 22px 0;
+    gap: 18px;
+    align-items: flex-start;
+    font-size: 11px;
+  }
+  .footer > span:first-child {
+    max-width: 135px;
+  }
+  .record {
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-end;
+  }
+  .record strong {
+    font-size: 13px;
+  }
+  .is-paused .overlay,
+  .is-ended .overlay {
+    align-items: center;
+  }
+  .is-paused .overlay h2,
+  .is-ended .overlay h2 {
+    font-size: 58px;
+  }
+  .announcement {
+    font-size: 11px;
+    top: 62px;
+  }
+  dialog {
+    padding: 28px;
+  }
+  dialog h2 {
+    font-size: 25px;
+  }
+  dialog ul {
+    font-size: 13px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Rute level dan target memakai data yang sama dengan aturan permainan. */
+.route h2 {
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: -0.2px;
+}
+
+.route ol {
+  list-style: none;
+  padding: 0;
+  margin: 17px 0 0;
+  display: grid;
+  gap: 5px;
+}
+
+.route-step {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  column-gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 4px;
+}
+
+.route-step.current {
+  background: var(--raised);
+}
+
+.route-number {
+  grid-row: 1/3;
+  font-size: 21px;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+.route-step.current .route-number {
+  color: var(--ink);
+}
+
+.route-step.complete .route-number {
+  color: var(--mint);
+}
+
+.route-step strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.route-step > div > span,
+.route-status {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.route-status {
+  grid-column: 2;
+}
+
+.mission-guide .brief {
+  margin-top: 20px;
+}
+
+.brief h2 {
+  font-size: 25px;
+  line-height: 1.1;
+}
+
+.level-requirements {
+  display: flex;
+  gap: 22px;
+  margin-top: 15px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.level-requirements strong {
+  font-weight: 500;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.mission-guide .pilot-note {
+  margin-top: 24px;
+}
+
+.field-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  padding: 23px 26px;
+  margin-top: 18px;
+  background: var(--surface);
+  border-radius: 6px;
+}
+
+.field-strip .guide-item {
+  margin: 0;
+}
+
+.guide-item img {
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.field-strip p {
+  font-size: 12px;
+}
+
+.restart-button {
+  display: block;
+  padding: 8px 0;
+  margin-top: 8px;
+  background: transparent;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.restart-button:hover {
+  color: var(--ink);
+}
+
+.is-ended .overlay h2 {
+  font-size: clamp(45px, 4.6vw, 64px);
+}
+
+@media (max-width: 850px) {
+  .mission-guide .brief {
+    margin-top: 0;
+  }
+  .field-strip {
+    padding: 22px;
+    gap: 16px;
+  }
+  .field-strip .guide-item {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 540px) {
+  .mission-guide .brief {
+    margin-top: 24px;
+  }
+  .route-step {
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    padding: 12px;
+  }
+  .route-number {
+    grid-row: 1;
+  }
+  .route-status {
+    grid-column: 3;
+  }
+  .field-strip {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  .is-ended .overlay h2 {
+    font-size: 48px;
+  }
+}
+
+/* ==========================================================================
+   OPTIMASI ANDROID, iOS, PWA & KONTROL LAYAR SENTUH (VIRTUAL JOYSTICK + DASH)
+   ========================================================================== */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  overscroll-behavior-y: none;
+}
+
+body {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  overscroll-behavior-y: none;
+}
+
+button {
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.game-panel,
+.arena,
+.hud,
+.controls-bar,
+.touch-deck {
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.install-nav-button {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.install-nav-button:hover {
+  color: #ffa56e;
+}
+
+.touch-deck {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 22px 18px;
+  background: #161714;
+  border-top: 1px solid var(--line);
+}
+
+.joystick-zone {
+  width: 108px;
+  height: 108px;
+  display: grid;
+  place-items: center;
+  touch-action: none;
+  position: relative;
+  flex-shrink: 0;
+  cursor: grab;
+}
+
+.joystick-zone:active {
+  cursor: grabbing;
+}
+
+.joystick-base {
+  width: 94px;
+  height: 94px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #252722 0%, #141613 78%);
+  border: 1.5px solid var(--line);
+  position: relative;
+  display: grid;
+  place-items: center;
+  transition:
+    border-color 0.16s,
+    box-shadow 0.16s;
+}
+
+.joystick-zone.active .joystick-base {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 5px rgba(237, 140, 80, 0.15);
+}
+
+.joy-dir {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--line);
+  pointer-events: none;
+}
+
+.joy-n {
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.joy-s {
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.joy-e {
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.joy-w {
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.joystick-knob {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #f5f5f1, #b8bbb0);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+  will-change: transform;
+  transition: transform 0.14s cubic-bezier(0.2, 0.85, 0.35, 1);
+}
+
+.joystick-zone.active .joystick-knob {
+  transition: none;
+  background: radial-gradient(circle at 35% 35%, #ffb889, var(--accent));
+  border-color: #ffd3b5;
+}
+
+.touch-deck-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 4px;
+  min-width: 0;
+}
+
+.touch-deck-hint {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.touch-deck-sub {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mint);
+  font-variant-numeric: tabular-nums;
+}
+
+.touch-deck-sub.cooldown {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.touch-dash-button {
+  position: relative;
+  width: 84px;
+  height: 84px;
+  border-radius: 50%;
+  background: var(--raised);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  flex-shrink: 0;
+  touch-action: none;
+  padding: 0;
+}
+
+.touch-dash-button:not(:disabled):active {
+  transform: scale(0.93);
+  background: #2e332d;
+}
+
+.touch-dash-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+  pointer-events: none;
+}
+
+.touch-dash-ring .ring-track {
+  stroke: var(--line);
+  stroke-width: 3.5;
+  fill: none;
+}
+
+.touch-dash-ring .ring-fill {
+  stroke: var(--mint);
+  stroke-width: 3.5;
+  fill: none;
+  stroke-dasharray: 238.76;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 0.06s linear;
+}
+
+.touch-dash-icon {
+  width: 22px;
+  height: 22px;
+  stroke: var(--mint);
+  fill: rgba(168, 201, 172, 0.2);
+}
+
+.touch-dash-button span {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.7px;
+}
+
+/* Tampilkan kontrol sentuh (Analog + Tombol Dash) di layar HP/Tablet atau perangkat layar sentuh */
+@media (max-width: 850px), (pointer: coarse) {
+  .touch-deck {
+    display: flex;
+  }
+  .controls-bar {
+    display: none;
+  }
+}
+
+@media (max-width: 540px) {
+  .touch-deck {
+    padding: 12px 16px 16px;
+  }
+  .joystick-zone {
+    width: 98px;
+    height: 98px;
+  }
+  .joystick-base {
+    width: 86px;
+    height: 86px;
+  }
+  .joystick-knob {
+    width: 36px;
+    height: 36px;
+  }
+  .touch-dash-button {
+    width: 78px;
+    height: 78px;
+  }
+}
+
+/* Mode Landscape di HP (Android / iPhone miring) agar arena & kontrol muat dalam 1 layar */
+@media (max-height: 540px) and (orientation: landscape) {
+  .shell {
+    padding: 0 16px;
+  }
+  .header {
+    height: 48px;
+  }
+  .brand {
+    font-size: 15px;
+  }
+  .brand > img {
+    width: 28px;
+    height: 28px;
+  }
+  .brand-sub,
+  .title-row {
+    display: none;
+  }
+  .hud {
+    height: 50px;
+    padding: 6px 16px;
+    gap: 28px;
+  }
+  .stat > span {
+    font-size: 10px;
+    margin-bottom: 1px;
+  }
+  .stat strong {
+    font-size: 19px;
+  }
+  .lives {
+    margin-top: 3px;
+    height: 18px;
+  }
+  .lives svg {
+    width: 15px;
+    height: 15px;
+  }
+  .arena {
+    aspect-ratio: 2.35;
+    max-height: calc(100dvh - 185px);
+  }
+  .overlay {
+    padding: 20px 5%;
+  }
+  .overlay h2,
+  .is-paused .overlay h2,
+  .is-ended .overlay h2 {
+    font-size: clamp(32px, 5vw, 44px);
+  }
+  .overlay p {
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.45;
+  }
+  .primary-button {
+    margin-top: 12px;
+    padding: 10px 18px;
+    min-height: 38px;
+  }
+  .touch-deck {
+    padding: 8px 18px 10px;
+  }
+  .joystick-zone {
+    width: 76px;
+    height: 76px;
+  }
+  .joystick-base {
+    width: 68px;
+    height: 68px;
+  }
+  .joystick-knob {
+    width: 30px;
+    height: 30px;
+  }
+  .touch-dash-button {
+    width: 66px;
+    height: 66px;
+  }
+}

@@ -1,0 +1,75 @@
+"use strict";
+
+// Semua angka gameplay dapat diubah di sini tanpa mengubah logika permainan.
+window.GameConfig = Object.freeze({
+  settings: Object.freeze({
+    lives: 3,
+    speed: 310,
+    dashDuration: 0.22,
+    dashCooldown: 3,
+    comboWindow: 3,
+  }),
+  levels: Object.freeze([
+    Object.freeze({
+      id: 1,
+      name: "Orbit Kepler",
+      description: "Kenali lintasan. Ambil kristal dan pelajari dash",
+      target: 100,
+      duration: 45,
+      spawnInterval: 1.1,
+      minSpeed: 75,
+      maxSpeed: 115,
+      drift: 25,
+      planet: "planet-kepler",
+      difficulty: "Pemanasan",
+    }),
+    Object.freeze({
+      id: 2,
+      name: "Sabuk Orion",
+      description: "Asteroid lebih rapat dan bergerak menyilang",
+      target: 200,
+      duration: 45,
+      spawnInterval: 0.72,
+      minSpeed: 120,
+      maxSpeed: 170,
+      drift: 65,
+      planet: "planet-orion",
+      difficulty: "Waspada",
+    }),
+    Object.freeze({
+      id: 3,
+      name: "Hujan Perseid",
+      description: "Lintasan terakhir. Meteor deras, waktu lebih singkat",
+      target: 300,
+      duration: 40,
+      spawnInterval: 0.46,
+      minSpeed: 165,
+      maxSpeed: 225,
+      drift: 95,
+      planet: "planet-perseid",
+      difficulty: "Intens",
+    }),
+  ]),
+  // Semua jalur media relatif terhadap index.html, termasuk saat dibuka offline.
+  media: Object.freeze({
+    images: Object.freeze({
+      ship: "assets/images/ship.svg",
+      crystal: "assets/images/crystal.svg",
+      asteroid: "assets/images/asteroid.svg",
+      shield: "assets/images/shield.svg",
+      "planet-kepler": "assets/images/planet-kepler.svg",
+      "planet-orion": "assets/images/planet-orion.svg",
+      "planet-perseid": "assets/images/planet-perseid.svg",
+    }),
+    audio: Object.freeze({
+      music: "assets/audio/orbit-theme.wav",
+      coin: "assets/audio/crystal.wav",
+      hit: "assets/audio/collision.wav",
+      dash: "assets/audio/dash.wav",
+      heal: "assets/audio/shield.wav",
+      level: "assets/audio/level-complete.wav",
+      won: "assets/audio/victory.wav",
+      lost: "assets/audio/defeat.wav",
+    }),
+  }),
+});

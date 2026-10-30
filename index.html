@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=5, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#111210" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta
+      name="apple-mobile-web-app-status-bar-style"
+      content="black-translucent"
+    />
+    <meta name="apple-mobile-web-app-title" content="Space Explorer" />
+    <title>Space Explorer — Crystal Run</title>
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="icon" href="assets/images/logo.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png" />
+    <link
+      rel="preload"
+      href="assets/fonts/Inter-Variable.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      href="assets/fonts/BarlowCondensed-SemiBold.ttf"
+      as="font"
+      type="font/ttf"
+      crossorigin
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="header">
+        <a class="brand" href="index.html" aria-label="Space Explorer, beranda">
+          <img src="assets/images/logo.svg" width="46" height="46" alt="" />
+          <span
+            >space explorer<span class="brand-sub"
+              >An interstellar arcade</span
+            ></span
+          >
+        </a>
+        <nav aria-label="Pengaturan game">
+          <button
+            class="text-button install-nav-button"
+            id="installButton"
+            hidden
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3v12m0 0-4-4m4 4 4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
+            </svg>
+            <span>Pasang App</span>
+          </button>
+          <button
+            class="text-button"
+            id="fullscreenButton"
+            aria-label="Layar penuh"
+            hidden
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+            </svg>
+            <span id="fullscreenLabel">Layar penuh</span>
+          </button>
+          <button class="text-button" id="helpButton">
+            <span class="help-symbol" aria-hidden="true">?</span>
+            <span>Cara main</span>
+          </button>
+          <button class="text-button" id="soundButton" aria-pressed="false">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M11 5 6 9H3v6h3l5 4V5Z" />
+              <path
+                class="sound-waves"
+                d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"
+              /></svg
+            ><span id="soundLabel">Suara aktif</span>
+          </button>
+        </nav>
+      </header>
+      <main>
+        <div class="title-row">
+          <div>
+            <h1>Crystal Run</h1>
+            <p>
+              Ambil kristalnya, Hindari asteroidnya, dan Pulang sebagai legenda
+            </p>
+          </div>
+          <span class="mission-status"
+            ><i></i><span id="missionStatus">Siap menjelajah</span></span
+          >
+        </div>
+        <div class="game-layout">
+          <div class="game-panel">
+            <div class="hud" aria-label="Status permainan">
+              <div class="stat">
+                <span>Sisa waktu</span><strong id="timer">00:45</strong>
+              </div>
+              <div class="stat score-stat">
+                <span>Skor total</span><strong id="score">000</strong>
+              </div>
+              <div class="stat health-stat">
+                <span>Nyawa</span>
+                <div class="lives" id="lives" aria-label="3 dari 3 nyawa">
+                  <svg viewBox="0 0 24 24">
+                    <path
+                      d="M12 21 3.5 12.5C-3 5.5 7-1 12 6c5-7 15-.5 8.5 6.5Z"
+                    /></svg
+                  ><svg viewBox="0 0 24 24">
+                    <path
+                      d="M12 21 3.5 12.5C-3 5.5 7-1 12 6c5-7 15-.5 8.5 6.5Z"
+                    /></svg
+                  ><svg viewBox="0 0 24 24">
+                    <path
+                      d="M12 21 3.5 12.5C-3 5.5 7-1 12 6c5-7 15-.5 8.5 6.5Z"
+                    />
+                  </svg>
+                </div>
+              </div>
+              <button
+                class="icon-button"
+                id="pauseButton"
+                aria-label="Jeda permainan"
+                disabled
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M8 5v14M16 5v14" />
+                </svg>
+              </button>
+            </div>
+            <div class="arena" id="arena">
+              <canvas
+                id="gameCanvas"
+                width="1100"
+                height="620"
+                aria-label="Arena game. Gerakkan pesawat dengan WASD, tombol panah, atau seret di layar. Shift untuk dash."
+              ></canvas>
+              <div class="arena-top">
+              <span id="sectorLabel">Level 1 · Orbit Kepler</span
+                ><span id="comboLabel">Jelajahi yang belum terjamah</span>
+              </div>
+              <div class="overlay" id="overlay">
+                <div class="overlay-content">
+                  <h2 id="overlayTitle">Space Explorer: <br />Crystal Run</h2>
+                  <p id="overlayDescription">
+                    Tiga level, Satu ekspedisi<br />Mulai dari Kepler,
+                    taklukkan hujan meteor
+                  </p>
+                  <div class="result" id="result" hidden>
+                    <strong id="resultScore">0</strong
+                    ><span id="resultDetail">poin terkumpul</span>
+                  </div>
+                  <button class="primary-button" id="startButton" disabled>
+                    <span id="startLabel">Memuat aset…</span
+                    ><svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M4 12h15m-6-6 6 6-6 6" />
+                    </svg>
+                  </button>
+                  <button class="restart-button" id="restartButton" hidden>
+                    Mulai dari level 1
+                  </button>
+                  <span class="enter-hint" id="enterHint"
+                    >atau tekan <kbd>Enter</kbd></span
+                  >
+                </div>
+              </div>
+              <div class="arena-bottom">
+                <span class="location"
+                  ><i></i>
+                  <span id="flightStatus"
+                    >Pesawat Nomad · Siap lepas landas</span
+                  ></span
+                ><span id="dashStatus">Sistem online</span>
+              </div>
+              <div
+                class="announcement"
+                id="announcement"
+                role="status"
+                aria-live="polite"
+              ></div>
+            </div>
+            <div class="controls-bar">
+              <span class="desktop-instruction"
+                ><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd
+                ><span>atau tombol panah</span></span
+              >
+              <span class="touch-instruction"
+                >Gunakan analog, seret arena, atau ketuk 2× untuk Dash</span
+              >
+              <button class="dash-control" id="dashButton" disabled>
+                <kbd>Shift</kbd><span>Dash</span
+                ><span class="dash-track"><i id="dashFill"></i></span>
+              </button>
+              <span class="pause-hint"><kbd>P</kbd> Jeda</span>
+            </div>
+            <div
+              class="touch-deck"
+              id="touchDeck"
+              aria-label="Kontrol layar sentuh"
+            >
+              <div
+                class="joystick-zone"
+                id="joystickZone"
+                role="application"
+                aria-label="Analog virtual penggerak pesawat"
+              >
+                <div class="joystick-base" id="joystickBase">
+                  <span class="joy-dir joy-n" aria-hidden="true"></span>
+                  <span class="joy-dir joy-e" aria-hidden="true"></span>
+                  <span class="joy-dir joy-s" aria-hidden="true"></span>
+                  <span class="joy-dir joy-w" aria-hidden="true"></span>
+                  <div class="joystick-knob" id="joystickKnob"></div>
+                </div>
+              </div>
+              <div class="touch-deck-center">
+                <span class="touch-deck-hint" id="touchDeckHint"
+                  >Analog kiri · Seret arena</span
+                >
+                <span class="touch-deck-sub" id="touchDashStatus"
+                  >Dash siap</span
+                >
+              </div>
+              <button
+                type="button"
+                class="touch-dash-button"
+                id="touchDashButton"
+                aria-label="Dash (Kebal sesaat)"
+                disabled
+              >
+                <svg
+                  class="touch-dash-ring"
+                  viewBox="0 0 84 84"
+                  aria-hidden="true"
+                >
+                  <circle class="ring-track" cx="42" cy="42" r="38" />
+                  <circle
+                    class="ring-fill"
+                    id="touchDashRing"
+                    cx="42"
+                    cy="42"
+                    r="38"
+                  />
+                </svg>
+                <svg
+                  class="touch-dash-icon"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d="m13 2-9 12h7l-1 8 10-13h-8z" />
+                </svg>
+                <span>DASH</span>
+              </button>
+            </div>
+          </div>
+          <aside class="mission-guide" aria-label="Rute dan target level">
+            <div class="route">
+              <h2>Rute ekspedisi</h2>
+              <ol id="levelRoute" aria-label="Urutan tiga level"></ol>
+            </div>
+            <div class="brief">
+              <span class="guide-heading"
+                >Level <span id="levelNumber">1</span> dari 3</span
+              >
+              <h2 id="levelName">Orbit Kepler</h2>
+              <p id="levelDescription">
+                Kenali lintasan, Ambil kristal dan pelajari dash
+              </p>
+              <div class="level-requirements">
+                <span><strong id="levelTarget">100</strong> poin</span
+                ><span><strong id="levelDuration">45</strong> detik</span>
+              </div>
+              <div
+                class="progress"
+                id="progressTrack"
+                role="progressbar"
+                aria-label="Poin level saat ini"
+                aria-valuenow="0"
+                aria-valuemin="0"
+                aria-valuemax="100"
+              >
+                <i id="progressFill"></i>
+              </div>
+              <span class="progress-label" id="progressLabel"
+                >0 dari 100 poin level</span
+              >
+            </div>
+            <div class="pilot-note">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="m13 2-9 12h7l-1 8 10-13h-8z" />
+              </svg>
+              <p>
+                <strong>Bekal level berikutnya</strong>Skor diteruskan, Timer
+                dan tiga nyawa kembali penuh
+              </p>
+            </div>
+          </aside>
+        </div>
+        <div class="field-strip" aria-label="Panduan objek permainan">
+          <div class="guide-item">
+            <img
+              src="assets/images/crystal.svg"
+              width="30"
+              height="38"
+              alt=""
+            />
+            <div>
+              <strong>Kristal energi</strong>
+              <p>+10 poin. Combo hingga ×3.</p>
+            </div>
+          </div>
+          <div class="guide-item">
+            <img
+              src="assets/images/asteroid.svg"
+              width="34"
+              height="34"
+              alt=""
+            />
+            <div>
+              <strong>Asteroid</strong>
+              <p>−1 nyawa. Hindari atau dash.</p>
+            </div>
+          </div>
+          <div class="guide-item">
+            <img src="assets/images/shield.svg" width="32" height="38" alt="" />
+            <div>
+              <strong>Kapsul perisai</strong>
+              <p>+1 nyawa saat terluka.</p>
+            </div>
+          </div>
+        </div>
+        <footer class="footer">
+          <span>Jangan cuma menatap bintang. Kejar.</span
+          ><span class="record"
+            ><svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M8 3h8v8a4 4 0 0 1-8 0V3Zm0 2H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4m-4 3v5m-4 0h8"
+              /></svg
+            >Rekor pribadimu <strong id="highScore">0</strong></span
+          >
+        </footer>
+      </main>
+    </div>
+    <dialog id="helpDialog" aria-labelledby="helpTitle">
+      <button
+        class="close-button icon-button"
+        id="closeHelp"
+        aria-label="Tutup panduan"
+      >
+        ×
+      </button>
+      <h2 id="helpTitle">Tiga orbit, satu misi.</h2>
+      <p>
+        Selesaikan target setiap level sebelum timer habis. Baca target, waktu,
+        dan rute di panel ekspedisi.
+      </p>
+      <ul>
+        <li>
+          <strong>Naik level:</strong> target tercapai → layar hasil → lanjut ke
+          level berikutnya. Skor total diteruskan; timer dan 3 nyawa diisi
+          ulang.
+        </li>
+        <li>
+          <strong>Gagal:</strong> waktu habis atau nyawa nol. Ulangi level yang
+          sama; poin dari percobaan gagal tidak ditumpuk ke percobaan
+          berikutnya.
+        </li>
+        <li>
+          <strong>Bergerak:</strong> WASD / tombol panah di komputer. Di Android
+          &amp; iOS, gunakan <strong>Analog Virtual</strong> di kiri bawah atau
+          sentuh &amp; seret langsung di arena.
+        </li>
+        <li>
+          <strong>Dash:</strong> Shift, Spasi, tombol <strong>DASH</strong>
+          khusus jempol kanan, atau ketuk 2× di arena. Kebal singkat, isi ulang
+          3 detik.
+        </li>
+        <li>
+          <strong>Combo:</strong> ambil kristal berikutnya dalam 3 detik. Setiap
+          3 kristal, pengali naik hingga ×3.
+        </li>
+        <li>
+          <strong>Perisai:</strong> kapsul hijau memulihkan satu nyawa. Setelah
+          tertabrak, kamu kebal sesaat.
+        </li>
+        <li>
+          <strong>Bonus level:</strong> sisa detik ×2 ditambah sisa nyawa ×20.
+        </li>
+        <li>
+          <strong>Pasang di HP (Android &amp; iOS):</strong> ketuk
+          <strong>Pasang App</strong> di kanan atas atau tambahkan ke Layar Utama
+          browser agar bisa dimainkan layar penuh &amp; offline.
+        </li>
+        <li>
+          <strong>Jeda:</strong> P, Esc, atau tombol jeda. M untuk suara. Game
+          otomatis dijeda saat pindah aplikasi/tab.
+        </li>
+      </ul>
+      <button class="primary-button" id="understood">
+        Mengerti, kapten <span aria-hidden="true">→</span>
+      </button>
+    </dialog>
+    <dialog id="installDialog" aria-labelledby="installTitle">
+      <button
+        class="close-button icon-button"
+        id="closeInstall"
+        aria-label="Tutup panduan instalasi"
+      >
+        ×
+      </button>
+      <h2 id="installTitle">Mainkan seperti aplikasi asli.</h2>
+      <p>
+        Space Explorer mendukung Progressive Web App (PWA) sehingga dapat
+        dipasang ke layar utama Android maupun iOS dan dimainkan secara offline.
+      </p>
+      <ul>
+        <li>
+          <strong>iPhone / iPad (Safari):</strong> Ketuk ikon
+          <strong>Bagikan (Share)</strong> di bilah bawah/atas Safari, lalu
+          pilih <strong>Tambah ke Layar Utama (Add to Home Screen)</strong> dan
+          ketuk <strong>Tambah</strong>.
+        </li>
+        <li>
+          <strong>Android (Chrome / Edge):</strong> Ketuk menu
+          <strong>⋮</strong> di pojok kanan atas browser, lalu pilih
+          <strong>Instal aplikasi (Install app)</strong> atau
+          <strong>Tambahkan ke layar utama</strong>.
+        </li>
+      </ul>
+      <button class="primary-button" id="closeInstallConfirm">
+        Siap, mengerti <span aria-hidden="true">→</span>
+      </button>
+    </dialog>
+    <noscript
+      ><p class="noscript">
+        Aktifkan JavaScript untuk memainkan Space Explorer.
+      </p></noscript
+    >
+    <!-- Urutan penting: konfigurasi → aset → audio → logika game. -->
+    <script src="js/config.js"></script>
+    <script src="js/assets.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/game.js"></script>
+  </body>
+</html>
